@@ -8,6 +8,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.shareddata.SharedData;
 
 import java.util.Properties;
 
@@ -27,6 +28,7 @@ public class SlickGuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(EventBus.class).toInstance(vertx.eventBus());
+        bind(SharedData.class).toInstance(vertx.sharedData());
         bind(RoutableResourceCollection.class).to(PackageScanningRoutableResourceCollection.class);
         Names.bindProperties(binder(), extractToProperties(context.config()));
     }
