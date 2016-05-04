@@ -14,6 +14,7 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.shareddata.Counter;
 import io.vertx.core.shareddata.SharedData;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -65,7 +66,18 @@ public class SlickVerticle extends AbstractVerticle {
         BridgeOptions options = new BridgeOptions()
                 .addInboundPermitted(inboundPermitted)
                 .addOutboundPermitted(outboundPermitted);
-        sockJSHandler.bridge(options);
+        sockJSHandler.bridge(options, be -> {
+            be.complete(true);
+            if (be.type() == BridgeEventType.REGISTER && "counter.changed".equals(be.rawMessage().getString("address"))) {
+                sd.getCounter("clickcounter", res -> {
+                    Counter clickcounter = res.result();
+                    clickcounter.get(count -> {
+                        logger.info("New client, publishing current counter value");
+                        eb.publish("counter.changed", new JsonObject().put("counter", count.result()));
+                    });
+                });
+            }
+        });
 
         router.route("/eventbus/*").handler(sockJSHandler);
         eb.consumer("counter.increment", message -> {
