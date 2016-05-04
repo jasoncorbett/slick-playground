@@ -9,6 +9,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.SharedData;
+import io.vertx.ext.mongo.MongoClient;
 
 import java.util.Properties;
 
@@ -30,7 +31,15 @@ public class SlickGuiceModule extends AbstractModule {
         bind(EventBus.class).toInstance(vertx.eventBus());
         bind(SharedData.class).toInstance(vertx.sharedData());
         bind(RoutableResourceCollection.class).to(PackageScanningRoutableResourceCollection.class);
+        String uri = "mongodb://localhost:27017";
+        String db = "yomama";
+        JsonObject mongoconfig = new JsonObject()
+                .put("connection_string", uri)
+                .put("db_name", db);
+        MongoClient mongoClient = MongoClient.createShared(vertx, mongoconfig);
+        bind(MongoClient.class).toInstance(mongoClient);
         Names.bindProperties(binder(), extractToProperties(context.config()));
+
     }
 
     private Properties extractToProperties(JsonObject config) {
