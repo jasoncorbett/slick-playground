@@ -1,17 +1,17 @@
 package com.slickqa.slickqaweb;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
-import com.slickqa.slickqaweb.routes.PackageScanningRoutableResourceCollection;
-import com.slickqa.slickqaweb.routes.RoutableResourceCollection;
-import io.vertx.core.Context;
+import com.google.inject.multibindings.Multibinder;
+import com.slickqa.slickqaweb.database.MongoDBProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.SharedData;
 import io.vertx.ext.mongo.MongoClient;
+import io.vertx.ext.web.Router;
+import org.reflections.Reflections;
 
-import java.util.Properties;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 /**
  * Configure Guice injection for slick.  Reads Named String values from Vert.x
@@ -19,34 +19,43 @@ import java.util.Properties;
  */
 public class SlickGuiceModule extends AbstractModule {
     private final Vertx vertx;
-    private final Context context;
+    private final Reflections reflections;
 
     public SlickGuiceModule(Vertx vertx) {
         this.vertx = vertx;
-        this.context = vertx.getOrCreateContext();
+        reflections = new Reflections("com.slickqa");
     }
 
     @Override
     protected void configure() {
+        bind(Vertx.class).toInstance(vertx);
         bind(EventBus.class).toInstance(vertx.eventBus());
         bind(SharedData.class).toInstance(vertx.sharedData());
-        bind(RoutableResourceCollection.class).to(PackageScanningRoutableResourceCollection.class);
-        String uri = "mongodb://localhost:27017";
-        String db = "yomama";
-        JsonObject mongoconfig = new JsonObject()
-                .put("connection_string", uri)
-                .put("db_name", db);
-        MongoClient mongoClient = MongoClient.createShared(vertx, mongoconfig);
-        bind(MongoClient.class).toInstance(mongoClient);
-        Names.bindProperties(binder(), extractToProperties(context.config()));
-
+        bind(Router.class).toInstance(Router.router(vertx));
+        bind(Configuration.class).toInstance(new VertxContextConfiguration(vertx.getOrCreateContext().config()));
+        bind(MongoClient.class).toProvider(MongoDBProvider.class);
+        Set<Class> collectables = new HashSet<Class>();
+        for(Class cls : reflections.getTypesAnnotatedWith(CollectableComponentType.class)) {
+            if(cls.isInterface()) {
+                collectables.add(cls);
+            }
+        }
+        addBindingsFor(collectables);
     }
 
-    private Properties extractToProperties(JsonObject config) {
-        Properties properties = new Properties();
-        config.getMap().keySet().stream().forEach((String key) -> {
-            properties.setProperty(key, (String) config.getValue(key));
-        });
-        return properties;
+    protected void addBindingsFor(Set<Class> collectables) {
+        Map<Class, Multibinder> binders = new HashMap<>();
+        for(Class collectable : collectables) {
+            binders.put(collectable, Multibinder.newSetBinder(binder(), collectable));
+        }
+        for(Class component : reflections.getTypesAnnotatedWith(StartupComponent.class)) {
+            for(Class collectable : collectables) {
+                if(collectable.isAssignableFrom(component) &&
+                   !component.isInterface() &&
+                   !Modifier.isAbstract(component.getModifiers())) {
+                    binders.get(collectable).addBinding().to(component);
+                }
+            }
+        }
     }
 }

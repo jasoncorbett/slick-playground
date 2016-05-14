@@ -1,19 +1,31 @@
 package com.slickqa.slickqaweb.routes.api;
 
-import com.slickqa.slickqaweb.routes.Routable;
+import com.google.inject.Inject;
+import com.slickqa.slickqaweb.Configuration;
+import com.slickqa.slickqaweb.startupComponentType.OnStartup;
+import com.slickqa.slickqaweb.StartupComponent;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Created by Jason on 5/1/2016.
+ * hello REST endpoint
  */
-public class hello implements Routable {
+@StartupComponent
+public class hello implements OnStartup {
+    private Router router;
+    private Configuration config;
+
+    @Inject
+    public hello(Router router, Configuration config) {
+        this.router = router;
+        this.config = config;
+    }
 
     @Override
-    public void configureRoutes(String baseUrlPath, Router router) {
-        router.route(Routable.joinUrlPieces(baseUrlPath, "api/:packageName/hello")).handler(this::sayHello);
+    public void onStartup() {
+        router.route(config.getUrlBasePath() + "api/:packageName/hello").handler(this::sayHello);
     }
 
     public void sayHello(RoutingContext ctx) {
