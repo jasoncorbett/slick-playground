@@ -8,6 +8,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
 
 import java.util.Set;
 
@@ -36,6 +37,8 @@ public class SlickVerticle extends AbstractVerticle {
         for(OnStartup startupComponent: startupSet) {
             startupComponent.onStartup();
         }
+
+        router.route(config.getUrlBasePath() + "*").handler(StaticHandler.create());
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
