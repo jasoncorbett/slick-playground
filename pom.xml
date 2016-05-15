@@ -56,6 +56,15 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>io.dazraf</groupId>
+                <artifactId>vertx-hot-maven-plugin</artifactId>
+                <version>2.1.0</version>
+                <configuration>
+                    <verticleReference>com.slickqa.slickqaweb.SlickVerticle</verticleReference>
+                    <notificationPort>9995</notificationPort>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <!-- Use the latest released version:
