@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
  * add it to the appropriate list depending on what interfaces it implements.
  */
 @Target(ElementType.TYPE)
-public @interface StartupComponent {
+public @interface AutoloadComponent {
 }

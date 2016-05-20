@@ -1,9 +1,9 @@
 package com.slickqa.slickqaweb.routes.api;
 
 import com.google.inject.Inject;
+import com.slickqa.slickqaweb.AutoloadComponent;
 import com.slickqa.slickqaweb.Configuration;
 import com.slickqa.slickqaweb.startupComponentType.OnStartup;
-import com.slickqa.slickqaweb.StartupComponent;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -12,7 +12,7 @@ import io.vertx.ext.web.RoutingContext;
 /**
  * hello REST endpoint
  */
-@StartupComponent
+@AutoloadComponent
 public class hello implements OnStartup {
     private Router router;
     private Configuration config;

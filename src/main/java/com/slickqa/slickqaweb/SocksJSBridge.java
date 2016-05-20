@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * This class builds a SocksJS bridge for the browser.
  */
-@StartupComponent
+@AutoloadComponent
 public class SocksJSBridge implements OnStartup {
     private Vertx vertx;
     private Router router;

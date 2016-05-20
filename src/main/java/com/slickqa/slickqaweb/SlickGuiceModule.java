@@ -48,7 +48,7 @@ public class SlickGuiceModule extends AbstractModule {
         for(Class collectable : collectables) {
             binders.put(collectable, Multibinder.newSetBinder(binder(), collectable));
         }
-        for(Class component : reflections.getTypesAnnotatedWith(StartupComponent.class)) {
+        for(Class component : reflections.getTypesAnnotatedWith(AutoloadComponent.class)) {
             for(Class collectable : collectables) {
                 if(collectable.isAssignableFrom(component) &&
                    !component.isInterface() &&

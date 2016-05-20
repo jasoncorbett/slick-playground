@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.slickqa.slickqaweb.Configuration;
 import com.slickqa.slickqaweb.SocksJSBridge;
-import com.slickqa.slickqaweb.StartupComponent;
+import com.slickqa.slickqaweb.AutoloadComponent;
 import com.slickqa.slickqaweb.startupComponentType.AddsSocksJSBridgeOptions;
 import com.slickqa.slickqaweb.startupComponentType.OnStartup;
 import io.vertx.core.eventbus.EventBus;
@@ -23,7 +23,7 @@ import io.vertx.ext.web.handler.sockjs.PermittedOptions;
  * by sending a counter.increment message to the event bus.
  */
 @Singleton
-@StartupComponent
+@AutoloadComponent
 public class counter implements OnStartup, AddsSocksJSBridgeOptions {
     private EventBus eb;
     private Configuration config;

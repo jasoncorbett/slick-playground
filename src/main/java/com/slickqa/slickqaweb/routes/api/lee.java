@@ -3,7 +3,7 @@ package com.slickqa.slickqaweb.routes.api;
 import com.google.inject.Inject;
 import com.slickqa.slickqaweb.Configuration;
 import com.slickqa.slickqaweb.startupComponentType.OnStartup;
-import com.slickqa.slickqaweb.StartupComponent;
+import com.slickqa.slickqaweb.AutoloadComponent;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
@@ -13,7 +13,7 @@ import io.vertx.ext.web.RoutingContext;
 /**
  * A test REST api endpoint for Lee who sucks.
  */
-@StartupComponent
+@AutoloadComponent
 public class lee implements OnStartup {
     private MongoClient mongo;
     private Router router;
