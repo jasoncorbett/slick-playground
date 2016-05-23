@@ -7,7 +7,9 @@ import com.slickqa.slickqaweb.database.MongoInsertHandler;
 import com.slickqa.slickqaweb.database.MongoQueryHandler;
 import com.slickqa.slickqaweb.database.types.Project;
 import com.slickqa.slickqaweb.startupComponentType.OnStartup;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -39,42 +41,41 @@ public class projects implements OnStartup {
     public void onStartup() {
         router.route(HttpMethod.GET, config.getUrlBasePath() + "api/projects").handler(this::getProjects);
         router.route(HttpMethod.POST, config.getUrlBasePath() + "api/projects").handler(this::addProject);
+        router.route(HttpMethod.GET, config.getUrlBasePath() + "api/projects/:name").handler(this::getProjectByName);
     }
 
-    public void getProjects(RoutingContext ctx) {
-        eventBus.send(MongoQueryHandler.Address, new JsonObject()
-                .put("type", Project.type)
-                .put("query", new JsonObject()), result -> {
-            if(result.succeeded()) {
-                ctx.response()
+    private void handleResult(RoutingContext ctx, AsyncResult<Message<Object>> result) {
+        if(result.succeeded()) {
+            ctx.response()
                     .putHeader("Content-Type", "application/json; charset=utf-8")
                     .setStatusCode(200)
                     .end(Json.encodePrettily(result.result().body()));
-            } else {
-                ctx.response()
+        } else {
+            ctx.response()
                     .putHeader("Content-Type", "application/json; charset=utf-8")
                     .setStatusCode(500)
                     .end(Json.encodePrettily(result.cause()));
-            }
+        }
+    }
+
+    public void getProjects(RoutingContext ctx) {
+        eventBus.send(MongoQueryHandler.Address, Project.findAll(), result -> {
+            handleResult(ctx, result);
         });
     }
 
     public void addProject(RoutingContext ctx) {
-        log.info("Adding project: {0}", Json.encodePrettily(ctx.getBodyAsJson()));
         eventBus.send(MongoInsertHandler.Address, new JsonObject()
                 .put("type", Project.type)
                 .put("insert", ctx.getBodyAsJson()), result -> {
-            if(result.succeeded()) {
-                ctx.response()
-                        .putHeader("Content-Type", "application/json; charset=utf-8")
-                        .setStatusCode(200)
-                        .end(Json.encodePrettily(result.result().body()));
-            } else {
-                ctx.response()
-                        .putHeader("Content-Type", "application/json; charset=utf-8")
-                        .setStatusCode(500)
-                        .end(Json.encodePrettily(result.cause()));
-            }
+            handleResult(ctx, result);
         });
+    }
+
+    public void getProjectByName(RoutingContext ctx) {
+        eventBus.send(MongoQueryHandler.Address, Project.findByName(ctx.request().getParam("name")), result -> {
+            handleResult(ctx, result);
+        });
+
     }
 }

@@ -96,4 +96,16 @@ public class Project implements DatabaseType, OnStartup {
             });
         });
     }
+
+    public static JsonObject findAll() {
+        return new JsonObject().put("type", Project.type).put("query", new JsonObject());
+    }
+
+    public static JsonObject findById(String id) {
+        return new JsonObject().put("type", Project.type).put("query", new JsonObject().put("_id", id));
+    }
+
+    public static JsonObject findByName(String name) {
+        return new JsonObject().put("type", Project.type).put("query", new JsonObject().put("name", name));
+    }
 }
