@@ -8,6 +8,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.shareddata.SharedData;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;

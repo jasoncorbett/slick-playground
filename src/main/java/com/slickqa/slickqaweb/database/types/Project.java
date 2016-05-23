@@ -45,7 +45,7 @@ public class Project implements DatabaseType, OnStartup {
     @Override
     public List<String> validateInsert(JsonObject input) {
         List<String> errors = new ArrayList<>();
-        if(input.getString(Project.name) == null || input.getString(Project.name).isEmpty()) {
+        if(input == null || input.getString(Project.name) == null || input.getString(Project.name).isEmpty()) {
             errors.add(ErrorUtil.missingRequiredProperty(this, Project.name));
         }
         return errors;
