@@ -42,6 +42,7 @@ public class projects implements OnStartup {
         router.route(HttpMethod.GET, config.getUrlBasePath() + "api/projects").handler(this::getProjects);
         router.route(HttpMethod.POST, config.getUrlBasePath() + "api/projects").handler(this::addProject);
         router.route(HttpMethod.GET, config.getUrlBasePath() + "api/projects/:name").handler(this::getProjectByName);
+        //router.route(HttpMethod.PUT, config.getUrlBasePath() + "api/projects/:name").handler(this::updateProjectByName);
     }
 
     private void handleResult(RoutingContext ctx, AsyncResult<Message<Object>> result) {
@@ -76,6 +77,9 @@ public class projects implements OnStartup {
         eventBus.send(MongoQueryHandler.Address, Project.findByName(ctx.request().getParam("name")), result -> {
             handleResult(ctx, result);
         });
+    }
+
+    public void updateProjectByName(RoutingContext ctx) {
 
     }
 }

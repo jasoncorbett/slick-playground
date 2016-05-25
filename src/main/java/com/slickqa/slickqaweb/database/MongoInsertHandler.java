@@ -37,6 +37,10 @@ public class MongoInsertHandler implements OnStartup {
         }
     }
 
+    public static String InsertedDbTypeAddress(String type) {
+        return MessageFormat.format("slick.db.{0}.new", type);
+    }
+
     @Override
     public void onStartup() {
         this.eb.consumer(MongoInsertHandler.Address, this::handleInsert);
@@ -57,6 +61,7 @@ public class MongoInsertHandler implements OnStartup {
                         mongo.findOne(dbType.getCollectionName(), new JsonObject().put("_id", id), null, findOneResult -> {
                             if(findOneResult.succeeded()) {
                                 message.reply(findOneResult.result());
+                                dbType.announceInsert(findOneResult.result());
                             } else {
                                 message.fail(30, MessageFormat.format("Failed to fetch newly inserted object with id {0}.", id));
                             }

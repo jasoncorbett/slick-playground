@@ -1,7 +1,9 @@
 package com.slickqa.slickqaweb.database;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.slickqa.slickqaweb.AutoloadComponent;
+import com.slickqa.slickqaweb.startupComponentType.AddsSocksJSBridgeOptions;
 import com.slickqa.slickqaweb.startupComponentType.OnStartup;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -9,6 +11,8 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +23,8 @@ import java.util.Map;
  * Component to handle querying the mongo database
  */
 @AutoloadComponent
-public class MongoQueryHandler implements OnStartup {
+@Singleton
+public class MongoQueryHandler implements OnStartup, AddsSocksJSBridgeOptions {
     private MongoClient mongo;
     private EventBus eb;
     private Map<String, DatabaseType> dbTypes;
@@ -61,5 +66,10 @@ public class MongoQueryHandler implements OnStartup {
         } else {
             message.fail(10, "Must specify type for query");
         }
+    }
+
+    @Override
+    public void addToSocksJSBridgeOptions(BridgeOptions options) {
+        options.addInboundPermitted(new PermittedOptions().setAddress(Address));
     }
 }

@@ -4,12 +4,16 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.slickqa.slickqaweb.AutoloadComponent;
 import com.slickqa.slickqaweb.database.DatabaseType;
+import com.slickqa.slickqaweb.startupComponentType.AddsSocksJSBridgeOptions;
 import com.slickqa.slickqaweb.startupComponentType.OnStartup;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.mongo.MongoClient;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,16 +23,21 @@ import java.util.List;
  */
 @AutoloadComponent
 @Singleton
-public class Project implements DatabaseType, OnStartup {
+public class Project implements DatabaseType, OnStartup, AddsSocksJSBridgeOptions {
     public static final String name = "name";
     public static final String type = "project";
+    public static final String AddressForNewProjects = "slick.db.project.new";
+    public static final String AddressForUpdatedProjects = "slick.db.project.updated";
+    public static final String AddressForDeletedProjects = "slick.db.project.deleted";
 
     private MongoClient mongo;
+    private EventBus eb;
     private Logger log;
 
     @Inject
-    public Project(MongoClient mongo) {
+    public Project(MongoClient mongo, EventBus eb) {
         this.mongo = mongo;
+        this.eb = eb;
         log = LoggerFactory.getLogger(Project.class);
     }
 
@@ -39,6 +48,11 @@ public class Project implements DatabaseType, OnStartup {
 
     @Override
     public String getCollectionName() {
+        return "projects";
+    }
+
+    @Override
+    public String getUrlName() {
         return "projects";
     }
 
@@ -66,6 +80,23 @@ public class Project implements DatabaseType, OnStartup {
     @Override
     public List<String> validateDelete(JsonObject input) {
         return null;
+    }
+
+    @Override
+    public void announceInsert(JsonObject input) {
+        eb.publish(AddressForNewProjects, input);
+    }
+
+    @Override
+    public void announceUpdate(JsonObject old, JsonObject update) {
+        eb.publish(AddressForUpdatedProjects, new JsonObject().put("old", old).put("new", update));
+        eb.publish(AddressForUpdatedProjects + "." + update.getString("name"), new JsonObject().put("old", old).put("new", update));
+    }
+
+    @Override
+    public void announceDelete(JsonObject deleted) {
+        eb.publish(AddressForDeletedProjects, deleted);
+        eb.publish(AddressForDeletedProjects + "." + deleted.getString("name"), deleted);
     }
 
     @Override
@@ -107,5 +138,14 @@ public class Project implements DatabaseType, OnStartup {
 
     public static JsonObject findByName(String name) {
         return new JsonObject().put("type", Project.type).put("query", new JsonObject().put("name", name));
+    }
+
+    @Override
+    public void addToSocksJSBridgeOptions(BridgeOptions options) {
+        //TODO: add authorization into the permitted options
+        options.addOutboundPermitted(new PermittedOptions().setAddress(AddressForNewProjects));
+        options.addOutboundPermitted(new PermittedOptions().setAddress(AddressForUpdatedProjects));
+        options.addOutboundPermitted(new PermittedOptions().setAddressRegex(AddressForUpdatedProjects + "\\..*"));
+        options.addOutboundPermitted(new PermittedOptions().setAddress(AddressForDeletedProjects));
     }
 }

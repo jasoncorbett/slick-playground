@@ -3,6 +3,9 @@
 </ion-navbar>
 
 <ion-content padding class="page1">
-  <p>The value of the counter is {{counter}}.</p>
+  <p>Project(s):</p>
+  <ul>
+    <li *ngFor="#project of projects">{{project.name}}</li>
+  </ul>
   <button (click)="increment()">Increment</button>
 </ion-content>
