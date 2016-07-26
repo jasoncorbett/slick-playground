@@ -1,8 +1,8 @@
-package com.slickqa.slickqaweb;
+package com.slickqa.slickqaweb.web;
 
 import com.google.inject.Inject;
-import com.slickqa.slickqaweb.startupComponentType.AddsSocksJSBridgeOptions;
-import com.slickqa.slickqaweb.startupComponentType.OnStartup;
+import com.slickqa.slickqaweb.web.startupComponentType.AddsSocksJSBridgeOptions;
+import com.slickqa.slickqaweb.web.startupComponentType.OnStartup;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.ext.web.Router;

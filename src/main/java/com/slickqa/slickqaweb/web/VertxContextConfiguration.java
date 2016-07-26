@@ -1,6 +1,5 @@
-package com.slickqa.slickqaweb;
+package com.slickqa.slickqaweb.web;
 
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -25,27 +24,17 @@ public class VertxContextConfiguration implements Configuration {
     }
 
     @Override
-    public String getMongoDBHostname() {
-        return config.getString("mongoHostname", "localhost");
+    public JsonObject getMongoDBConfig() {
+        return config.getJsonObject("mongo");
     }
 
     @Override
-    public int getMongoDBPort() {
-        return config.getInteger("mongoPort", 27017);
+    public String getAdminUsername() {
+        return config.getString("adminUsername", "admin");
     }
 
     @Override
-    public String getMongoDBUsername() {
-        return config.getString("mongoUsername", "");
-    }
-
-    @Override
-    public String getMongoDBPassword() {
-        return config.getString("mongoPassword", "");
-    }
-
-    @Override
-    public String getMongoDBName() {
-        return config.getString("mongoDatabase", "slick");
+    public String getAdminPassword() {
+        return config.getString("adminPassword");
     }
 }

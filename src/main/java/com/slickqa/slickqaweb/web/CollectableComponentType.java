@@ -1,4 +1,4 @@
-package com.slickqa.slickqaweb;
+package com.slickqa.slickqaweb.web;
 
 /**
  * Any interface annotated with this annotation will be able to have

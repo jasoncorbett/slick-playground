@@ -1,14 +1,14 @@
-package com.slickqa.slickqaweb;
+package com.slickqa.slickqaweb.web;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
-import com.slickqa.slickqaweb.database.MongoDBProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.shareddata.SharedData;
+import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.mongo.MongoAuth;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
@@ -21,10 +21,14 @@ import java.util.*;
 public class SlickGuiceModule extends AbstractModule {
     private final Vertx vertx;
     private final Reflections reflections;
+    private final MongoClient mongoClient;
+    private final MongoAuth mongoAuth;
 
-    public SlickGuiceModule(Vertx vertx) {
+    public SlickGuiceModule(Vertx vertx, MongoClient mongoClient, MongoAuth mongoAuth) {
         this.vertx = vertx;
-        reflections = new Reflections("com.slickqa");
+        reflections = new Reflections("com.slickqa.slickqaweb.web");
+        this.mongoAuth = mongoAuth;
+        this.mongoClient = mongoClient;
     }
 
     @Override
@@ -34,7 +38,9 @@ public class SlickGuiceModule extends AbstractModule {
         bind(SharedData.class).toInstance(vertx.sharedData());
         bind(Router.class).toInstance(Router.router(vertx));
         bind(Configuration.class).toInstance(new VertxContextConfiguration(vertx.getOrCreateContext().config()));
-        bind(MongoClient.class).toProvider(MongoDBProvider.class);
+        bind(MongoClient.class).toInstance(mongoClient);
+        bind(AuthProvider.class).toInstance(mongoAuth);
+        bind(MongoAuth.class).toInstance(mongoAuth);
         Set<Class> collectables = new HashSet<Class>();
         for(Class cls : reflections.getTypesAnnotatedWith(CollectableComponentType.class)) {
             if(cls.isInterface()) {

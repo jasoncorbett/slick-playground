@@ -1,4 +1,4 @@
-package com.slickqa.slickqaweb;
+package com.slickqa.slickqaweb.web;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

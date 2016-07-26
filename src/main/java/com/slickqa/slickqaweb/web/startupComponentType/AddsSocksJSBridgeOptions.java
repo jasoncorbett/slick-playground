@@ -1,6 +1,6 @@
-package com.slickqa.slickqaweb.startupComponentType;
+package com.slickqa.slickqaweb.web.startupComponentType;
 
-import com.slickqa.slickqaweb.CollectableComponentType;
+import com.slickqa.slickqaweb.web.CollectableComponentType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 
 /**

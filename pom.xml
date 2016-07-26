@@ -9,9 +9,9 @@
     <version>5.0-SNAPSHOT</version>
 
     <properties>
-        <vertx.version>3.2.0</vertx.version>
+        <vertx.version>3.3.2</vertx.version>
         <guice.version>4.0</guice.version>
-        <main.verticle>com.slickqa.slickqaweb.SlickVerticle</main.verticle>
+        <main.verticle>com.slickqa.slickqaweb.SlickDeployerVerticle</main.verticle>
     </properties>
 
     <dependencies>
@@ -28,6 +28,16 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-mongo-client</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth-mongo</artifactId>
             <version>${vertx.version}</version>
         </dependency>
         <dependency>
