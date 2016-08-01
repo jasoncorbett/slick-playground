@@ -3,6 +3,7 @@ package com.slickqa.slickqaweb.auth;
 import com.slickqa.slickqaweb.ConfigurationError;
 import com.slickqa.slickqaweb.MongoFactory;
 import com.slickqa.slickqaweb.web.Role;
+import com.slickqa.slickqaweb.web.db.DBUtil;
 import com.slickqa.slickqaweb.web.db.Project;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -42,6 +43,20 @@ public class SlickAuthVerticle extends AbstractVerticle {
 
         mongo = MongoFactory.buildMongo(vertx);
         mongoAuth = MongoFactory.buildMongoAuth(vertx, mongo);
+
+        JsonObject usersIndex = new JsonObject()
+                .put("name", "users_username_unique")
+                .put("key", new JsonObject()
+                    .put("username", 1))
+                .put("unique", true);
+
+        DBUtil.createIndex(mongo, mongoAuth.getCollectionName(), usersIndex, result -> {
+            if(result.succeeded()) {
+                log.info("Created index on users for username");
+            } else {
+                log.debug("Creation of index on users failed, probably because it alread existed", result.cause());
+            }
+        });
 
         // find projects
         mongo.find("projects", new JsonObject(), projectsResult -> {
